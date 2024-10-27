@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from "zod"
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -18,33 +18,30 @@ export async function submitEmail(email: string, type: "generate" | "pricing") {
   }
 
   try {
-    // Log the attempt
     console.log(`Submitting email: ${email} for ${type}`)
     
-    // Store in database using Prisma
-    const savedEmail = await prisma.email.create({
-      data: {
-        email,
-        type,
-      },
+    // Try to create a new user, or update if the email already exists
+    const savedEmail = await prisma.user.upsert({
+      where: { email },
+      update: { type },
+      create: { email, type },
     })
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 500))
 
     console.log('Email saved successfully:', savedEmail)
-
-    // In a real application, you might want to:
-    // 1. Send a confirmation email to the user
-    // 2. Add the user to your mailing list (with their consent)
-    // 3. Trigger the email generation process if type is "generate"
 
     return { success: true, data: savedEmail }
   } catch (error) {
     console.error('Error saving email:', error)
-    throw new Error(error instanceof Error ? error.message : 'Failed to submit email')
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // Handle specific Prisma errors
+      if (error.code === 'P2002') {
+        throw new Error('This email is already registered')
+      }
+    }
+    throw new Error('Failed to submit email')
   } finally {
-    // Clean up the Prisma connection
     await prisma.$disconnect()
   }
 }
