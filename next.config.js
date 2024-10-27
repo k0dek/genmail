@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // output: "export", // Removed this line
+    output: "export",
     eslint: {
         ignoreDuringBuilds: true,
     },
     experimental: {
-        serverActions: {
-            allowedOrigins: ["*"], // Or specify your allowed origins
-        },
+        serverActions: true,
     },
     images: { unoptimized: true },
 };
