@@ -47,7 +47,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
-            <body className={dmSans.className}>{children}</body>
+            <body className={dmSans.className}>{children}
+            <script async id="toolbar-script" data-toolbar-api-key="65933b32-9b28-4421-b070-cebdee999c79" src="https://dev.get.usetool.bar/embedded-app.js"></script>
+            </body>
         </html>
     );
 }
